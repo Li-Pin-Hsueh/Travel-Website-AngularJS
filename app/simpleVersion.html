@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+
+
+<head>
+    <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous"> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script data-require="angular-ui-bootstrap@0.3.0" data-semver="0.3.0"
+        src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.3.0.min.js"></script>
+
+</head>
+
+
+<body ng-controller="customersCtrl">
+
+    <div class="container">
+        <h5>選擇地區</h5>
+        <select ng-model="selectedZone" ng-options="z for z in zones" ng-change="changeSelected(selectedZone)">
+        </select>
+        <br>
+        <h5>熱門景點：</h5>
+        <button class="btn-info" ng-click="selectedZone='所有區域';changeSelected(selectedZone)">所有區域</button>
+        <button class="btn-info" ng-click="selectedZone='三民區';changeSelected(selectedZone)">三民區</button>
+        <button class="btn-info" ng-click="selectedZone='左營區';changeSelected(selectedZone)">左營區</button>
+        <button class="btn-info" ng-click="selectedZone='美濃區';changeSelected(selectedZone)">美濃區</button>
+        <br><br>
+        <h6>你現在正在瀏覽:{{ selectedZone?selectedZone:'全部區域'}}</h6>
+        <h6>該地區有{{filteredItems.length}}個景點</h6>
+        <br><br>
+
+        <div class="row">
+            <div class="span4" ng-repeat="item in displayItmes">
+                <div class="card">
+                    <img class="card-img-top bg-cover" src="{{ item.Picture1 }}" alt="">
+                    <div class="d-flex justify-content-between align-items-end p-0 px-2"
+                        style="background-color: rgba(0, 0, 0, .2)">
+                        <h5 class="card-img-title-md">{{ item.Name }}</h5>
+                        <h6 class="card-img-title-sm">{{ item.Zone }}</h6>
+                    </div>
+                </div>
+                <div class="card-body text-left">
+                    <p class="card-p-text">{{ item.Add }}</p>
+                    <p class="card-p-text">{{ item.Opentime }}</p>
+                    <hr>
+                    <p class="card-p-text">{{ item.Description }}</p>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="pagination" data-pagination="" data-num-pages="numPages()" data-current-page="currentPage"
+            data-boundary-links="true"></div>
+    </div>
+
+
+    <script>
+        var app = angular.module('myApp', ['ui.bootstrap']);
+        app.controller('customersCtrl', function ($scope, $http) {
+            $http.get("https://raw.githubusercontent.com/hexschool/KCGTravel/master/datastore_search.json")
+                .then(function (response) {
+                    var items = response.data.result.records;
+
+                    $scope.items = items;
+                    $scope.zones = [];
+                    for (var i = 0; i < items.length; i++) {
+                        if (!$scope.zones.includes(items[i].Zone))
+                            $scope.zones.push(items[i].Zone);
+                    }
+                    // Pagination
+                    // $scope.filteredItems = items;
+                    // $scope.displayItmes = [];
+                    // $scope.currentPage = 1;
+                    // $scope.numPerPage = 6;
+                    //$scope.maxSize = 5;
+                    // $scope.numPages = function () {
+                    //     return Math.ceil($scope.filteredItems.length / $scope.numPerPage);
+                    // };
+
+                    //$scope.$watch("currentPage + numPerPage", function () {
+                    //     var begin = (($scope.currentPage - 1) * $scope.numPerPage)
+                    //         , end = begin + $scope.numPerPage;
+
+                    //     $scope.displayItmes = $scope.filteredItems.slice(begin, end);
+                    //});
+
+                    // $scope.changeSelected = function (zone) {
+                    //     var display;
+                    //     $scope.filteredItems = items.filter(d => {
+                    //         if (d['Zone'] == zone || zone == "所有區域")
+                    //             return d;
+                    //     })
+                    // };
+                });
+            // Pagination
+            $scope.filteredItems = items;
+            $scope.displayItmes = [];
+            $scope.currentPage = 1;
+            $scope.numPerPage = 6;
+            $scope.numPages = function () {
+                return Math.ceil($scope.filteredItems.length / $scope.numPerPage);
+            };
+
+            $scope.$watch("currentPage + numPerPage", function () {
+                var begin = (($scope.currentPage - 1) * $scope.numPerPage)
+                    , end = begin + $scope.numPerPage;
+
+                $scope.displayItmes = $scope.filteredItems.slice(begin, end);
+            });
+            $scope.changeSelected = function (zone) {
+                var display;
+                $scope.filteredItems = items.filter(d => {
+                    if (d['Zone'] == zone || zone == "所有區域")
+                        return d;
+                })
+            };
+            // $scope.items = items;
+            // $scope.zones = [];
+            // for (var i = 0; i < items.length; i++) {
+            //     if (!$scope.zones.includes(items[i].Zone))
+            //         $scope.zones.push(items[i].Zone);
+            // }
+            // Pagination
+            // $scope.filteredItems = items;
+            // $scope.displayItmes = [];
+            // $scope.currentPage = 1;
+            // $scope.numPerPage = 6;
+            // //$scope.maxSize = 5;
+            // $scope.numPages = function () {
+            //     return Math.ceil($scope.filteredItems.length / $scope.numPerPage);
+            // };
+
+            // $scope.$watch("currentPage + numPerPage", function () {
+            //     var begin = (($scope.currentPage - 1) * $scope.numPerPage)
+            //         , end = begin + $scope.numPerPage;
+
+            //     $scope.displayItmes = $scope.filteredItems.slice(begin, end);
+            // });
+
+            // $scope.changeSelected = function (zone) {
+            //     var display;
+            //     $scope.filteredItems = items.filter(d => {
+            //         if (d['Zone'] == zone || zone == "所有區域")
+            //             return d;
+            //     })
+            // };
+        });
+    </script>
+
+</body>
+
+</html>
