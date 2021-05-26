@@ -5,8 +5,6 @@
 
 <head>
     <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css">
-    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous"> -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
     <script data-require="angular-ui-bootstrap@0.3.0" data-semver="0.3.0"
         src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.3.0.min.js"></script>
@@ -30,28 +28,9 @@
         <h6>你現在正在瀏覽:{{ selectedZone?selectedZone:'全部區域'}}</h6>
         <h6>該地區有{{filteredItems.length}}個景點</h6>
         <br><br>
-
+        
         <div class="row">
-            <div class="span4" ng-repeat="item in displayItmes">
-                <div class="card">
-                    <div style="min-height: 200px;">
-                        <img class="card-img-top bg-cover" src="{{ item.Picture1 }}" alt="">
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-end p-0 px-2"
-                        style="background-color: rgba(0, 0, 0, .2)">
-                        <h5 class="card-img-title-md">{{ item.Name }}</h5>
-                        <h6 class="card-img-title-sm">{{ item.Zone }}</h6>
-                    </div>
-                </div>
-
-                <div class="card-body text-left" style="height:500px;">
-                    <p class="card-p-text">{{ item.Add }}</p>
-                    <p class="card-p-text">{{ item.Opentime }}</p>
-                    <hr>
-                    <p class="card-p-text">{{ item.Description }}</p>
-                </div>
-            </div>
+            <item-card ng-repeat="item in displayItmes"></item-card>
         </div>
 
         <div class="pagination" data-pagination="" data-num-pages="numPages()" data-current-page="currentPage"
@@ -61,6 +40,32 @@
 
     <script>
         var app = angular.module('myApp', ['ui.bootstrap']);
+        app.directive("itemCard", function () {
+            return {
+                template: 
+                `<div class="span4">
+                    <div class="card">
+                        <div style="min-height: 200px;">
+                            <img class="card-img-top bg-cover" src="{{ item.Picture1 }}" alt="">
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-end p-0 px-2"
+                            style="background-color: rgba(0, 0, 0, .2)">
+                            <h5 class="card-img-title-md">{{ item.Name }}</h5>
+                            <h6 class="card-img-title-sm">{{ item.Zone }}</h6>
+                        </div>
+                    </div>
+
+                    <div class="card-body text-left" style="height:500px;">
+                        <p class="card-p-text">{{ item.Add }}</p>
+                        <p class="card-p-text">{{ item.Opentime }}</p>
+                        <hr>
+                        <p class="card-p-text">{{ item.Description }}</p>
+                    </div>
+                </div>`
+            };
+        });
+
         app.controller('customersCtrl', function ($scope, $http, $q) {
             $scope.items = [];
             $scope.filteredItems = [];
@@ -108,6 +113,7 @@
                 });
 
                 $scope.$watch("selectedZone", function () {
+
                     var begin = (($scope.currentPage - 1) * $scope.numPerPage)
                         , end = begin + $scope.numPerPage;
 
