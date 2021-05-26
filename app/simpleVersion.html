@@ -105,20 +105,13 @@
                 $scope.numPages = function () {
                     return Math.ceil($scope.filteredItems.length / $scope.numPerPage);
                 };
-                $scope.$watch("currentPage + numPerPage", function () {
+                $scope.$watch("selectedZone + currentPage + numPerPage", function () {
                     var begin = (($scope.currentPage - 1) * $scope.numPerPage)
                         , end = begin + $scope.numPerPage;
 
                     $scope.displayItmes = $scope.filteredItems.slice(begin, end);
                 });
 
-                $scope.$watch("selectedZone", function () {
-
-                    var begin = (($scope.currentPage - 1) * $scope.numPerPage)
-                        , end = begin + $scope.numPerPage;
-
-                    $scope.displayItmes = $scope.filteredItems.slice(begin, end);
-                });
             });
         })
 
