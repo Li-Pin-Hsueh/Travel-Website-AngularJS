@@ -77,25 +77,43 @@
                     data: '=',
                 },
                 templateUrl: 'item-gallery.html',
-                controller: function ($scope) {
+                link: function (scope, element, attrs) {
+                    scope.displayItmes = [];
+                    scope.currentPage = 1;
+                    scope.numPerPage = 6;
 
-                    $scope.displayItmes = [];
-                    $scope.currentPage = 1;
-                    $scope.numPerPage = 6;
-
-                    $scope.numPages = function () {
-                        return Math.ceil($scope.data.length / $scope.numPerPage);
+                    scope.numPages = function () {
+                        return Math.ceil(scope.data.length / scope.numPerPage);
                     };
-                    $scope.$watch("data + currentPage + numPerPage", function () {
+                    scope.$watch("data + currentPage + numPerPage", function () {
 
-                        var begin = (($scope.currentPage - 1) * $scope.numPerPage)
-                            , end = begin + $scope.numPerPage;
+                        var begin = ((scope.currentPage - 1) * scope.numPerPage)
+                            , end = begin + scope.numPerPage;
 
-                        $scope.displayItmes = $scope.data.slice(begin, end);
+                        scope.displayItmes = scope.data.slice(begin, end);
                         console.log("$watch trigerred...");
                     });
+                
                 },
-                controllerAs: 'MyCtrl'
+                // controller: function ($scope) {
+
+                    // $scope.displayItmes = [];
+                    // $scope.currentPage = 1;
+                    // $scope.numPerPage = 6;
+
+                    // $scope.numPages = function () {
+                    //     return Math.ceil($scope.data.length / $scope.numPerPage);
+                    // };
+                    // $scope.$watch("data + currentPage + numPerPage", function () {
+
+                    //     var begin = (($scope.currentPage - 1) * $scope.numPerPage)
+                    //         , end = begin + $scope.numPerPage;
+
+                    //     $scope.displayItmes = $scope.data.slice(begin, end);
+                    //     console.log("$watch trigerred...");
+                    // });
+                // },
+                // controllerAs: 'MyCtrl'
             };
         });
 
