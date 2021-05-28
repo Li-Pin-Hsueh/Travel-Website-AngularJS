@@ -28,61 +28,30 @@
         <h6>你現在正在瀏覽:{{ selectedZone?selectedZone:'全部區域'}}</h6>
         <h6>該地區有{{filteredItems.length}}個景點</h6>
         <br><br>
-        
-        <div class="row">
-            <item-card ng-repeat="item in displayItmes"></item-card>
-        </div>
 
-        <div class="pagination" data-pagination="" data-num-pages="numPages()" data-current-page="currentPage"
-            data-boundary-links="true"></div>
+        <item-gallery data="filteredItems"></item-gallery>
+
     </div>
 
 
     <script>
         var app = angular.module('myApp', ['ui.bootstrap']);
-        app.directive("itemCard", function () {
-            return {
-                template: 
-                `<div class="span4">
-                    <div class="card">
-                        <div style="min-height: 200px;">
-                            <img class="card-img-top bg-cover" src="{{ item.Picture1 }}" alt="">
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-end p-0 px-2"
-                            style="background-color: rgba(0, 0, 0, .2)">
-                            <h5 class="card-img-title-md">{{ item.Name }}</h5>
-                            <h6 class="card-img-title-sm">{{ item.Zone }}</h6>
-                        </div>
-                    </div>
-
-                    <div class="card-body text-left" style="height:500px;">
-                        <p class="card-p-text">{{ item.Add }}</p>
-                        <p class="card-p-text">{{ item.Opentime }}</p>
-                        <hr>
-                        <p class="card-p-text">{{ item.Description }}</p>
-                    </div>
-                </div>`
-            };
-        });
 
         app.controller('customersCtrl', function ($scope, $http, $q) {
+            // Define scope variables.
             $scope.items = [];
             $scope.filteredItems = [];
-            $scope.displayItmes = [];
             $scope.zones = [];
-            $scope.currentPage = 1;
-            $scope.numPerPage = 6;
 
+            // Get data via url.
             let promise1 = $http.get("https://raw.githubusercontent.com/hexschool/KCGTravel/master/datastore_search.json")
                 .then(function (response) {
                     console.log("Get data.");
                     var items = response.data.result.records;
                     return items;
                 });
-
+            // Execute while data has ready.
             $q.all([promise1]).then(res => {
-                console.log('Promise has resolved', res[0]);
                 var items = res[0];
                 $scope.items = items;
                 $scope.zones = [];
@@ -91,29 +60,44 @@
                         $scope.zones.push(items[i].Zone);
                 }
                 $scope.filteredItems = items;
-                $scope.displayItmes = items;
-                $scope.currentPage = 1;
-                $scope.numPerPage = 6;
 
                 $scope.changeSelected = function (zone) {
                     var display;
                     $scope.filteredItems = $scope.items.filter(d => {
-                        if (d['Zone'] == zone || zone == "所有區域")
+                        if (d.Zone == zone || zone == "所有區域")
                             return d;
                     })
                 };
-                $scope.numPages = function () {
-                    return Math.ceil($scope.filteredItems.length / $scope.numPerPage);
-                };
-                $scope.$watch("selectedZone + currentPage + numPerPage", function () {
-                    var begin = (($scope.currentPage - 1) * $scope.numPerPage)
-                        , end = begin + $scope.numPerPage;
-
-                    $scope.displayItmes = $scope.filteredItems.slice(begin, end);
-                });
-
             });
         })
+        // item-display directive.
+        app.directive("itemGallery", function () {
+            return {
+                scope: {
+                    data: '=',
+                },
+                templateUrl: 'item-gallery.html',
+                controller: function ($scope) {
+
+                    $scope.displayItmes = [];
+                    $scope.currentPage = 1;
+                    $scope.numPerPage = 6;
+
+                    $scope.numPages = function () {
+                        return Math.ceil($scope.data.length / $scope.numPerPage);
+                    };
+                    $scope.$watch("data + currentPage + numPerPage", function () {
+
+                        var begin = (($scope.currentPage - 1) * $scope.numPerPage)
+                            , end = begin + $scope.numPerPage;
+
+                        $scope.displayItmes = $scope.data.slice(begin, end);
+                        console.log("$watch trigerred...");
+                    });
+                },
+                controllerAs: 'MyCtrl'
+            };
+        });
 
     </script>
 

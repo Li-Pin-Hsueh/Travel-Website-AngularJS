@@ -1,0 +1,26 @@
+<div class="row">
+    <div class="span4" ng-repeat="item in displayItmes">
+        <div class="card">
+            <div style="min-height: 200px;">
+                <img class="card-img-top bg-cover" src="{{ item.Picture1 }}" alt="">
+            </div>
+
+            <div class="d-flex justify-content-between align-items-end p-0 px-2"
+                style="background-color: rgba(0, 0, 0, .2)">
+                <h5 class="card-img-title-md">{{ item.Name }}</h5>
+                <h6 class="card-img-title-sm">{{ item.Zone }}</h6>
+            </div>
+        </div>
+
+        <div class="card-body text-left" style="height:500px;">
+            <p class="card-p-text">{{ item.Add }}</p>
+            <p class="card-p-text">{{ item.Opentime }}</p>
+            <hr>
+            <p class="card-p-text">{{ item.Description }}</p>
+        </div>
+    </div>
+
+</div>
+
+<div class="pagination" data-pagination="" data-num-pages="numPages()" data-current-page="currentPage"
+    data-boundary-links="true"></div>
