@@ -37,31 +37,41 @@
     <script>
         var app = angular.module('myApp', ['ui.bootstrap']);
 
-        app.service('referenceDataService', function ($http) {
-            
-            this.get = function () {
-                // Get data via url.
-                let data = $http.get("https://raw.githubusercontent.com/hexschool/KCGTravel/master/datastore_search.json")
-                    .then(function (response) {
-                        console.log("Get data.");
-                        var items = response.data.result.records;
-                        return items;
-                    });
-                
-                return data;
+        // Factory功能最簡單 用來回傳值
+        app.factory('myFactory', function ($http) {
+            return {
+                getReferenceData: function () {
+                    return $http.get("https://raw.githubusercontent.com/hexschool/KCGTravel/master/datastore_search.json")
+                        .then(function (response) {
+                            var items = response.data.result.records;
+                            return items;
+                        });
+                }
             }
         });
 
-        app.controller('customersCtrl', ['$scope', '$http', '$q', 'referenceDataService', function ($scope, $http, $q, referenceDataService) {
+        // Service視為一個類別 在Controller裡用 service.xxx 來存取
+        // app.service('referenceDataService', function ($http, $q) {
+        //     this.get = function () {
+        //         // Get data via url.
+        //         let promise = $http.get("https://raw.githubusercontent.com/hexschool/KCGTravel/master/datastore_search.json")
+        //             .then(function (response) {
+        //                 console.log("Get data.");
+        //                 var items = response.data.result.records;
+        //                 return items;
+        //             });
+
+        //         return promise;
+        //     }
+        // });
+
+        app.controller('customersCtrl', ['$scope', '$http', '$q', 'myFactory', function ($scope, $http, $q, myFactory) {
             // Define scope variables.
             $scope.items = [];
             $scope.filteredItems = [];
             $scope.zones = [];
 
-            // 取得資料後再開始邏輯的運算
-            
-            $q.all([referenceDataService.get()]).then(res => {
-                var items = res[0];
+            myFactory.getReferenceData().then(function (items) {
                 $scope.items = items;
                 console.log($scope.items);
                 $scope.zones = [];
@@ -70,15 +80,28 @@
                         $scope.zones.push(items[i].Zone);
                 }
                 $scope.filteredItems = items;
-
-                $scope.changeSelected = function (zone) {
-                    var display;
-                    $scope.filteredItems = $scope.items.filter(d => {
-                        if (d.Zone == zone || zone == "所有區域")
-                            return d;
-                    })
-                };
             });
+            // 取得資料後再開始邏輯的運算
+            // $q.all([referenceDataService.get()]).then(res => {
+            //     var items = res[0];
+            //     $scope.items = items;
+            //     console.log($scope.items);
+            //     $scope.zones = [];
+            //     for (var i = 0; i < items.length; i++) {
+            //         if (!$scope.zones.includes(items[i].Zone))
+            //             $scope.zones.push(items[i].Zone);
+            //     }
+            //     $scope.filteredItems = items;
+            // });
+
+            // functions
+            $scope.changeSelected = function (zone) {
+                var display;
+                $scope.filteredItems = $scope.items.filter(d => {
+                    if (d.Zone == zone || zone == "所有區域")
+                        return d;
+                })
+            };
         }])
         // item-display directive.
         app.directive("itemGallery", function () {
