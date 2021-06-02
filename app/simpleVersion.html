@@ -37,23 +37,33 @@
     <script>
         var app = angular.module('myApp', ['ui.bootstrap']);
 
-        app.controller('customersCtrl', function ($scope, $http, $q) {
+        app.service('referenceDataService', function ($http) {
+            
+            this.get = function () {
+                // Get data via url.
+                let data = $http.get("https://raw.githubusercontent.com/hexschool/KCGTravel/master/datastore_search.json")
+                    .then(function (response) {
+                        console.log("Get data.");
+                        var items = response.data.result.records;
+                        return items;
+                    });
+                
+                return data;
+            }
+        });
+
+        app.controller('customersCtrl', ['$scope', '$http', '$q', 'referenceDataService', function ($scope, $http, $q, referenceDataService) {
             // Define scope variables.
             $scope.items = [];
             $scope.filteredItems = [];
             $scope.zones = [];
 
-            // Get data via url.
-            let promise1 = $http.get("https://raw.githubusercontent.com/hexschool/KCGTravel/master/datastore_search.json")
-                .then(function (response) {
-                    console.log("Get data.");
-                    var items = response.data.result.records;
-                    return items;
-                });
-            // Execute while data has ready.
-            $q.all([promise1]).then(res => {
+            // 取得資料後再開始邏輯的運算
+            
+            $q.all([referenceDataService.get()]).then(res => {
                 var items = res[0];
                 $scope.items = items;
+                console.log($scope.items);
                 $scope.zones = [];
                 for (var i = 0; i < items.length; i++) {
                     if (!$scope.zones.includes(items[i].Zone))
@@ -69,7 +79,7 @@
                     })
                 };
             });
-        })
+        }])
         // item-display directive.
         app.directive("itemGallery", function () {
             return {
@@ -93,25 +103,25 @@
                         scope.displayItmes = scope.data.slice(begin, end);
                         console.log("$watch trigerred...");
                     });
-                
+
                 },
                 // controller: function ($scope) {
 
-                    // $scope.displayItmes = [];
-                    // $scope.currentPage = 1;
-                    // $scope.numPerPage = 6;
+                // $scope.displayItmes = [];
+                // $scope.currentPage = 1;
+                // $scope.numPerPage = 6;
 
-                    // $scope.numPages = function () {
-                    //     return Math.ceil($scope.data.length / $scope.numPerPage);
-                    // };
-                    // $scope.$watch("data + currentPage + numPerPage", function () {
+                // $scope.numPages = function () {
+                //     return Math.ceil($scope.data.length / $scope.numPerPage);
+                // };
+                // $scope.$watch("data + currentPage + numPerPage", function () {
 
-                    //     var begin = (($scope.currentPage - 1) * $scope.numPerPage)
-                    //         , end = begin + $scope.numPerPage;
+                //     var begin = (($scope.currentPage - 1) * $scope.numPerPage)
+                //         , end = begin + $scope.numPerPage;
 
-                    //     $scope.displayItmes = $scope.data.slice(begin, end);
-                    //     console.log("$watch trigerred...");
-                    // });
+                //     $scope.displayItmes = $scope.data.slice(begin, end);
+                //     console.log("$watch trigerred...");
+                // });
                 // },
                 // controllerAs: 'MyCtrl'
             };
